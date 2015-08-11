@@ -1,0 +1,1535 @@
+<!--
+    Powered By nodePPT - This is probably the best web presentation tool so far!
+    version: 1.2.3
+    site: https://github.com/ksky521/nodePPT
+-->
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 简介</title>
+    <link rel="stylesheet" media="all" href="./css/nodeppt.css">
+    <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="./css/phone.css">
+    <link rel="stylesheet" media="print" href="./css/pdf.css">
+    <link rel="stylesheet" href="./js/highlight/styles/monokai_sublime.css">
+    <link rel="stylesheet" href="./css/font-awesome.css">
+</head>
+<body>
+<div class="slides">
+    <slides id="container">
+        <slide class="slide"><section class="slide-wrapper"><article class="flexbox vcenter">
+<h1>ES6 简介</h1>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>浏览器支持情况</h2>
+
+</hgroup><article>
+
+<iframe data-src="http://kangax.github.io/compat-table/es6/"></iframe>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>ES6资料</h2>
+
+</hgroup><article>
+
+<ul>
+<li><a href="http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf" target="_blank">Ecma-262.pdf</a></li>
+<li><a href="https://leanpub.com/understandinges6/read/" target="_blank">Understanding ECMAScript 6 </a> <span class="label label-default">by Nicholas C. Zakas</span></li>
+<li><a href="https://leanpub.com/exploring-es6/read" target="_blank">Exploring ES6</a><span class="label label-default">by Axel Rauschmayer</span></li>
+<li><a href="http://es6.ruanyifeng.com/#docs/intro" target="_blank">ECMAScript 6 入门</a> <span class="label label-default">by ruanyifeng</span></li>
+<li><a href="https://babeljs.io/docs/learn-es2015/" target="_blank">Learn ES2015</a><span class="label label-default">by babel</span></li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2>Module</h2>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>several per module</h2>
+
+</hgroup><article>
+
+<pre><code>// Named exports
+
+//------ lib.js ------
+export const sqrt = Math.sqrt;
+export function square(x) {
+    return x * x;
+}
+export function diag(x, y) {
+    return sqrt(square(x) + square(y));
+}
+
+//------ main.js ------
+import { square, diag } from &#39;lib&#39;;
+console.log(square(11)); // 121
+console.log(diag(4, 3)); // 5
+
+// or
+import * as lib from &#39;lib&#39;;
+console.log(lib.square(11)); // 121
+console.log(lib.diag(4, 3)); // 5
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>several per module 续</h2>
+
+</hgroup><article>
+
+<pre><code>// CommonJS
+
+//------ lib.js ------
+var sqrt = Math.sqrt;
+function square(x) {
+    return x * x;
+}
+function diag(x, y) {
+    return sqrt(square(x) + square(y));
+}
+module.exports = {
+    sqrt: sqrt,
+    square: square,
+    diag: diag,
+};
+
+//------ main.js ------
+var square = require(&#39;lib&#39;).square;
+var diag = require(&#39;lib&#39;).diag;
+console.log(square(11)); // 121
+console.log(diag(4, 3)); // 5
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>one per module</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">// function
+//------ myFunc.js ------
+export default function () { ... };
+
+//------ main1.js ------
+import myFunc from &#39;myFunc&#39;;
+myFunc();
+
+// class
+//------ MyClass.js ------
+export default class { ... };
+
+//------ main2.js ------
+import MyClass from &#39;MyClass&#39;;
+let inst = new MyClass();
+</code></pre>
+
+</article></section></slide>
+<slide class="slide hasnote"><aside class="note">
+<section>
+<p><a href="http://www.2ality.com/2014/09/es6-modules-final.html" target="_blank">http://www.2ality.com/2014/09/es6-modules-final.html</a></p>
+
+</section>
+</aside><section class="slide-wrapper"><hgroup>
+<h2>named exports and a default export</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">//------ underscore.js ------
+export default function (obj) {
+    //...
+};
+export function each(obj, iterator, context) {
+    //...
+}
+export { each as forEach };
+
+//------ main.js ------
+import _, { each } from &#39;underscore&#39;;
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2>Syntax</h2>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>default function parameters</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+(function(a = 1, b = 2) {
+    return a === 3 &amp;&amp; b === 2;
+}(3))
+
+// 2
+(function(a = 1, b = 2) {
+    return a === 1 &amp;&amp; b === 3;
+}(undefined, 3))
+
+// 3
+(function(a, b = a) {
+    return b === 5;
+}(5))
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>rest parameters</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+(function (foo, ...args) {
+  return args instanceof Array &amp;&amp; args + &quot;&quot; === &quot;bar,baz&quot;;
+}(&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;))
+
+// 2
+(function(a, ...b){}).length === 1 &amp;&amp;
+(function(...c){}).length === 0
+
+// 3
+(function (foo, ...args) {
+  foo = &quot;qux&quot;;
+  return arguments.length === 3
+    &amp;&amp; arguments[0] === &quot;foo&quot;
+    &amp;&amp; arguments[1] === &quot;bar&quot;
+    &amp;&amp; arguments[2] === &quot;baz&quot;;
+}(&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;))
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>spread (...) operator</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">// 1
+Math.max(...[1, 2, 3]) === 3
+// Math.max.apply(null, [1, 2, 3])
+
+// 2
+var iterable = (function*(){ yield 1; yield 2; yield 3; }());
+Math.max(...iterable) === 3;
+
+// 3
+Math.max(...&quot;1234&quot;) === 4
+
+// 4
+Array(...&quot;ab&quot;)[0] === &quot;a&quot;
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>object literal extensions</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var x = &#39;y&#39;;
+({ [x]: 1 }).y === 1
+
+// 2
+var a = 7, b = 8, c = {a,b};
+c.a === 7 &amp;&amp; c.b === 8
+
+// 3
+({ y() { return 2; } }).y() === 2
+
+// 4
+({&quot;foo bar&quot;() { return 4; } })[&quot;foo bar&quot;]() === 4
+
+// 5
+var x = &#39;y&#39;,
+    valueSet,
+    obj = {
+      get [x] () { return 1 },
+      set [x] (value) { valueSet = value }
+    };
+obj.y = &#39;foo&#39;;
+obj.y === 1 &amp;&amp; valueSet === &#39;foo&#39;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>for..of loops</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var arr = [5];
+for (var item of arr)
+  item === 5
+
+// 2
+var str = &quot;&quot;;
+for (var item of &quot;foo&quot;)
+  str += item;
+str === &quot;foo&quot;
+
+// 3
+var result = &quot;&quot;;
+var iterable = (function*(){ yield 1; yield 2; yield 3; }());
+for (var item of iterable) {
+  result += item;
+}
+result === &quot;123&quot;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>octal and binary literals</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+0o10 === 8 &amp;&amp; 0O10 === 8
+
+// 2
+0b10 === 2 &amp;&amp; 0B10 === 2
+
+// 3
+Number(&#39;0o1&#39;) === 1
+
+// 4
+Number(&#39;0b1&#39;) === 1
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>template strings</h2>
+
+</hgroup><article>
+
+<pre><code class="jvascript">// 1
+var a = &quot;ba&quot;, b = &quot;QUX&quot;;
+`foo bar
+${a + &quot;z&quot;} ${b.toLowerCase()}` === &quot;foo bar\nbaz qux&quot;
+
+// 2
+function fn(parts, a, b) {
+  called = true;
+  return parts instanceof Array &amp;&amp;
+    parts[0]     === &quot;foo&quot;      &amp;&amp;
+    parts[1]     === &quot;bar\n&quot;    &amp;&amp;
+    parts.raw[0] === &quot;foo&quot;      &amp;&amp;
+    parts.raw[1] === &quot;bar\\n&quot;   &amp;&amp;
+    a === 123                   &amp;&amp;
+    b === 456;
+}
+fn `foo${123}bar\n${456}`
+
+fn([&#39;foo&#39;, &#39;bar\n&#39;], 123, 456)
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>RegExp &quot;y&quot; and &quot;u&quot; flags</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var s = &quot;aaa_aa_a&quot;;
+var r1 = /a+/g;
+var r2 = /a+/y;
+
+r1.exec(s) // [&quot;aaa&quot;]
+r2.exec(s) // [&quot;aaa&quot;]
+
+r1.exec(s) // [&quot;aa&quot;]
+r2.exec(s) // null
+
+// 2
+var string = &#39;a𝌆b&#39;;
+console.log(/a.b/.test(string)); // false
+console.log(/a.b/u.test(string)); // true
+
+/\u{61}/.test(&#39;a&#39;) // false
+/\u{61}/u.test(&#39;a&#39;) // true
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>destructuring</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var [a, , [b], c] = [5, null, [6]];
+var d, e;
+[d,e] = [7,8];
+a === 5 &amp;&amp; b === 6 &amp;&amp; c === undefined
+  &amp;&amp; d === 7 &amp;&amp; e === 8
+
+// 2
+var [a, b, c] = &quot;ab&quot;;
+var d, e;
+[d,e] = &quot;de&quot;;
+a === &quot;a&quot; &amp;&amp; b === &quot;b&quot; &amp;&amp; c === undefined
+  &amp;&amp; d === &quot;d&quot; &amp;&amp; e === &quot;e&quot;
+
+// 3
+var [a, b, c] = (function*(){ yield 1; yield 2; }());
+var d, e;
+[d, e] = (function*(){ yield 3; yield 4; }());
+a === 1 &amp;&amp; b === 2 &amp;&amp; c === undefined
+  &amp;&amp; d === 3 &amp;&amp; e === 4
+
+// 4
+var {c, x:d, e} = {c:7, x:8};
+var f, g;
+({f,g} = {f:9,g:10});
+c === 7 &amp;&amp; d === 8 &amp;&amp; e === undefined
+  &amp;&amp; f === 9 &amp;&amp; g === 10
+
+// 5
+var [a, ...b] = [3, 4, 5];
+var [c, ...d] = [6];
+a === 3 &amp;&amp; b instanceof Array &amp;&amp; (b + &quot;&quot;) === &quot;4,5&quot; &amp;&amp;
+   c === 6 &amp;&amp; d instanceof Array &amp;&amp; d.length === 0
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>new.target</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var passed = false;
+new function f() {
+  passed = (new.target === f);
+}();
+(function() {
+  passed &amp;= (new.target === undefined);
+}());
+passed;
+
+// 2
+var passed = false;
+new function f() {
+  passed = (new.target === f);
+}();
+
+try {
+  Function(&quot;new.target = function(){};&quot;);
+} catch(e) {
+  return passed;
+}
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Bindings</h2>
+
+</hgroup><article>
+
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>const</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+const foo = 123;
+(foo === 123)
+
+// 2
+const bar = 123;
+{ const bar = 456; }
+bar === 123;
+
+// 3
+const baz = 1;
+try {
+  Function(&quot;const foo = 1; foo = 2;&quot;)();
+} catch(e) {
+  return true;
+}
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>let</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+let foo = 123;
+(foo === 123)
+
+// 2
+let bar = 123;
+{ let bar = 456; }
+bar === 123
+
+// 3
+let baz = 1;
+for(let baz = 0; false; false) {}
+baz === 1;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>block-level function declaration</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+&#39;use strict&#39;;
+function f() { return 1; }
+{
+  function f() { return 2; }
+}
+f() === 1
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Functions</h2>
+
+</hgroup><article>
+
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>arrow functions</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+(() =&gt; 5)() === 5
+
+// 2
+var b = x =&gt; x + &quot;foo&quot;;
+(b(&quot;fee fie foe &quot;) === &quot;fee fie foe foo&quot;)
+
+// 3
+var c = (v, w, x, y, z) =&gt; &quot;&quot; + v + w + x + y + z;
+(c(6, 5, 4, 3, 2) === &quot;65432&quot;);
+
+// 4
+var d = { x : &quot;bar&quot;, y : function() { return z =&gt; this.x + z; }}.y();
+var e = { x : &quot;baz&quot;, y : d };
+d(&quot;ley&quot;) === &quot;barley&quot; &amp;&amp; e.y(&quot;ley&quot;) === &quot;barley&quot;;
+
+// 5
+var d = { x : &quot;foo&quot;, y : function() { return () =&gt; this.x; }};
+var e = { x : &quot;bar&quot; };
+d.y().call(e) === &quot;foo&quot; &amp;&amp; d.y().apply(e) === &quot;foo&quot;
+
+// 6
+var d = { x : &quot;bar&quot;, y : function() { return z =&gt; this.x + z; }};
+var e = { x : &quot;baz&quot; };
+d.y().bind(e, &quot;ley&quot;)() === &quot;barley&quot;
+
+// 7
+var a = () =&gt; 5;
+!a.hasOwnProperty(&quot;prototype&quot;)
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>class</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+class C {}
+typeof C === &quot;function&quot;
+
+// 2
+class C {}
+var c1 = C;
+{
+  class C {}
+  var c2 = C;
+}
+C === c1
+
+// 3
+class C {
+  constructor() { this.x = 1; }
+}
+C.prototype.constructor === C
+  &amp;&amp; new C().x === 1;
+
+// 4
+class C {
+  method() { return 2; }
+}
+typeof C.prototype.method === &quot;function&quot;
+  &amp;&amp; new C().method() === 2;
+
+// 5
+var foo = &quot;method&quot;;
+class C {
+  [foo]() { return 2; }
+}
+typeof C.prototype.method === &quot;function&quot;
+  &amp;&amp; new C().method() === 2
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>class 2</h2>
+
+</hgroup><article>
+
+<pre><code>// 6
+class C {
+  static method() { return 3; }
+}
+typeof C.method === &quot;function&quot;
+  &amp;&amp; C.method() === 3;
+
+// 7
+var foo = &quot;method&quot;;
+class C {
+  static [foo]() { return 3; }
+}
+typeof C.method === &quot;function&quot;
+  &amp;&amp; C.method() === 3;
+
+// 8
+var baz = false;
+class C {
+  static get foo() { return &quot;foo&quot;; }
+  static set bar(x) { baz = x; }
+}
+C.bar = true;
+C.foo === &quot;foo&quot; &amp;&amp; baz;
+
+// 9
+class C {}
+try {
+  C();
+}
+catch(e) {
+  return true;
+}
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>class 3</h2>
+
+</hgroup><article>
+
+<pre><code>// 10
+class B {}
+class C extends B {}
+new C() instanceof B
+  &amp;&amp; B.isPrototypeOf(C);
+
+// 11
+var B;
+class C extends (B = class {}) {}
+new C() instanceof B
+  &amp;&amp; B.isPrototypeOf(C);
+
+// 12
+class C extends null {
+  constructor() { return Object.create(null); }
+}
+Function.prototype.isPrototypeOf(C)
+  &amp;&amp; Object.getPrototypeOf(C.prototype) === null;
+
+// 13
+var passed = false;
+new function f() {
+  passed = new.target === f;
+}();
+
+class A {
+  constructor() {
+    passed &amp;= new.target === B;
+  }
+}
+class B extends A {}
+new B();
+passed;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>super</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var passed = false;
+class B {
+  constructor(a) { passed = (a === &quot;barbaz&quot;); }
+}
+class C extends B {
+  constructor(a) { super(&quot;bar&quot; + a); }
+}
+new C(&quot;baz&quot;);
+passed;
+
+// 2
+class B {}
+B.prototype.qux = &quot;foo&quot;;
+B.prototype.corge = &quot;baz&quot;;
+class C extends B {
+  quux(a) { return super.qux + a + super[&quot;corge&quot;]; }
+}
+C.prototype.qux = &quot;garply&quot;;
+new C().quux(&quot;bar&quot;) === &quot;foobarbaz&quot;;
+
+// 3
+class B {
+  qux(a) { return &quot;foo&quot; + a; }
+}
+class C extends B {
+  qux(a) { return super.qux(&quot;bar&quot; + a); }
+}
+new C().qux(&quot;baz&quot;) === &quot;foobarbaz&quot;;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>generators</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+function * generator(){
+  yield 5; yield 6;
+};
+var iterator = generator();
+var item = iterator.next();
+item.value === 5 &amp;&amp; item.done === false;
+item = iterator.next();
+item.value === 6 &amp;&amp; item.done === false;
+item = iterator.next();
+item.value === undefined &amp;&amp; item.done === true;
+
+// 2
+function * generator(){
+  yield this.x; yield this.y;
+};
+try {
+  (new generator()).next();
+}
+catch (e) {
+  return true;
+}
+
+// 3
+var o = {
+  * generator() {
+    yield 5; yield 6;
+  },
+};
+var iterator = o.generator();
+// ...
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Built-ins</h2>
+
+</hgroup><article>
+
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>typed arrays</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var buffer = new ArrayBuffer(64);
+var view = new Int8Array(buffer);
+
+Int8Array
+Uint8Array
+Uint8ClampedArray
+Int16Array
+Uint16Array
+Int32Array
+Uint32Array
+Float32Array
+Float64Array
+
+DataView
+ArrayBuffer
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Map</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">// 1
+var key = {};
+var map = new Map();
+map.set(key, 123);
+map.has(key) &amp;&amp; map.get(key) === 123;
+
+// 2
+var passed = false;
+var _set = Map.prototype.set;
+Map.prototype.set = function(k, v) {
+  passed = true;
+};
+new Map([ [1, 2] ]);
+Map.prototype.set = _set;
+passed
+
+// 3
+var key1 = {};
+var key2 = {};
+var map = new Map([[key1, 123], [key2, 456]]);
+
+map.has(key1) &amp;&amp; map.get(key1) === 123 &amp;&amp;
+map.has(key2) &amp;&amp; map.get(key2) === 456;
+
+map.size === 2
+Map.prototype.delete
+Map.prototype.clear
+Map.prototype.forEach
+Map.prototype.keys
+Map.prototype.values
+Map.prototype.entries
+Map.prototype[Symbol.iterator]
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Set</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var obj = {};
+var set = new Set();
+
+set.add(123);
+set.add(123);
+set.has(123);
+
+// 2
+var passed = false;
+var _add = Set.prototype.add;
+Set.prototype.add = function(v) {
+  passed = true;
+};
+new Set([1]);
+Set.prototype.add = _add;
+
+passed;
+
+// 2
+var obj1 = {};
+var obj2 = {};
+var set = new Set([obj1, obj2]);
+
+set.has(obj1) &amp;&amp; set.has(obj2);
+
+set.size == 2
+Set.prototype.delete
+Set.prototype.clear
+Set.prototype.forEach
+Set.prototype.keys
+Set.prototype.values
+Set.prototype.entries
+Set.prototype[Symbol.iterator]
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>WeakMap WeakSet</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var key = {};
+var weakmap = new WeakMap();
+
+weakmap.set(key, 123);
+
+weakmap.has(key) &amp;&amp; weakmap.get(key) === 123;
+
+WeakMap.prototype.delete
+
+// 2
+var obj1 = {};
+var weakset = new WeakSet();
+
+weakset.add(obj1);
+weakset.add(obj1);
+
+weakset.has(obj1);
+WeakSet.prototype.delete
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Proxy</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var proxied = { };
+var proxy = new Proxy(proxied, {
+  get: function (t, k, r) {
+    return t === proxied &amp;&amp; k === &quot;foo&quot; &amp;&amp; r === proxy &amp;&amp; 5;
+  }
+});
+proxy.foo === 5;
+
+// 2
+var proxied = { };
+var passed = false;
+var proxy = new Proxy(proxied, {
+  set: function (t, k, v, r) {
+    passed = t === proxied &amp;&amp; k + v === &quot;foobar&quot; &amp;&amp; r === proxy;
+  }
+});
+proxy.foo = &quot;bar&quot;;
+
+set
+get
+has
+deleteProperty
+getOwnPropertyDescriptor
+defineProperty
+getPrototypeOf
+setPrototypeOf
+isExtensible
+preventExtensions
+enumerate
+ownKeys
+apply
+construct
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Reflect</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+Reflect.get({ qux: 987 }, &quot;qux&quot;) === 987
+var obj = {};
+Reflect.set(obj, &quot;quux&quot;, 654);
+obj.quux === 654;
+Reflect.has({ qux: 987 }, &quot;qux&quot;)
+var obj = { bar: 456 };
+Reflect.deleteProperty(obj, &quot;bar&quot;);
+
+// 2
+({ qux: 987 }).qux
+({}).qux = 654
+(&#39;qux&#39; in {qux: 654})
+var obj = { bar: 456 };
+delete obj.bar
+
+// 3
+try { Object.defineProperty(obj, name, desc); } catch (e) { }
+
+if (Reflect.defineProperty(obj, name, desc)) { // success
+} else { // failure }
+
+// 4
+Reflect.getOwnPropertyDescriptor
+Reflect.defineProperty
+Reflect.getPrototypeOf
+Reflect.setPrototypeOf
+Reflect.isExtensible
+Reflect.preventExtensions
+Reflect.enumerate
+Reflect.ownKeys
+Reflect.apply
+Reflect.construct
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Promise</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var p1 = new Promise(function(resolve, reject) { resolve(&quot;foo&quot;); });
+var p2 = new Promise(function(resolve, reject) { reject(&quot;quux&quot;); });
+var score = 0;
+
+function thenFn(result)  { score += (result === &quot;foo&quot;);  check(); }
+function catchFn(result) { score += (result === &quot;quux&quot;); check(); }
+function shouldNotRun(result)  { score = -Infinity;   }
+
+p1.then(thenFn, shouldNotRun);
+p2.then(shouldNotRun, catchFn);
+p1.catch(shouldNotRun);
+p2.catch(catchFn);
+
+p1.then(function() {
+  // Promise.prototype.then() should return a new Promise
+  score += p1.then() !== p1;
+  check();
+});
+
+function check() {
+  if (score === 4) asyncTestPassed();
+}
+
+Promise.all
+Promise.race
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Symbol</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var sym1 = Symbol();
+var sym2 = Symbol(&quot;foo&quot;);
+var sym3 = Symbol(&quot;foo&quot;);
+
+Symbol(&quot;foo&quot;) === Symbol(&quot;foo&quot;); // false
+
+// 2
+typeof Symbol() === &quot;symbol&quot;;
+new Symbol(); // ERROR
+
+// 3
+var symbol = Symbol.for(&#39;foo&#39;);
+Symbol.for(&#39;foo&#39;) === symbol &amp;&amp;
+   Symbol.keyFor(symbol) === &#39;foo&#39;;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>well-known symbols</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">// 1
+Symbol.hasInstance
+
+foo instanceof Foo
+// 等同于
+Foo[Symbol.hasInstance](foo)
+
+// 2
+
+Symbol.isConcatSpreadable
+Symbol.iterator
+Symbol.species
+Symbol.toPrimitive
+Symbol.toStringTag
+Symbol.unscopables
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Built-in extensions</h2>
+
+</hgroup><article>
+
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Object static methods</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var o = Object.assign({a:true}, {b:true}, {c:true});
+&quot;a&quot; in o &amp;&amp; &quot;b&quot; in o &amp;&amp; &quot;c&quot; in o;
+
+// 2
+typeof Object.is === &#39;function&#39; &amp;&amp;
+  Object.is(NaN, NaN) &amp;&amp;
+ !Object.is(-0, 0);
+
+// 3
+var o = {};
+var sym = Symbol(), sym2 = Symbol(), sym3 = Symbol();
+o[sym]  = true;
+o[sym2] = true;
+o[sym3] = true;
+var result = Object.getOwnPropertySymbols(o);
+result[0] === sym
+  &amp;&amp; result[1] === sym2
+  &amp;&amp; result[2] === sym3;
+
+// 4
+Object.setPrototypeOf({}, Array.prototype) instanceof Array;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>function &quot;name&quot; property</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+function foo(){};
+foo.name === &#39;foo&#39; &amp;&amp;
+  (function(){}).name === &#39;&#39;;
+
+// 2
+function foo() {};
+foo.bind({}).name === &quot;bound foo&quot; &amp;&amp;
+  (function(){}).bind({}).name === &quot;bound &quot;;
+
+// 3
+class foo {};
+class bar { static name() {} };
+foo.name === &quot;foo&quot; &amp;&amp;
+  typeof bar.name === &quot;function&quot;;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>String static methods</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+typeof String.raw === &#39;function&#39;;
+
+// 2
+name = &#39;Bob&#39;;
+String.raw`Hi, ${name}!`;
+
+// 3
+String.fromCodePoint(65) // A
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>String.prototype methods</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+&#39;A&#39;.codePointAt()
+
+String.prototype.normalize
+String.prototype.repeat
+String.prototype.startsWith
+String.prototype.endsWith
+String.prototype.includes
+String.prototype[Symbol.iterator]
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>RegExp.prototype properties</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+/./igm.flags === &quot;gim&quot; &amp;&amp; /./.flags === &quot;&quot;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Array static methods</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+Array.from({ 0: &quot;foo&quot;, 1: &quot;bar&quot;, length: 2 }) + &#39;&#39; === &quot;foo,bar&quot;
+
+// 2
+var iterable = (function*(){ yield 1; yield 2; yield 3; }());
+Array.from(iterable) + &#39;&#39; === &quot;1,2,3&quot;;
+
+// 3
+Array.of(1, 2); // [1, 2]
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Array.prototype methods</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+Array.prototype.copyWithin
+Array.prototype.find
+Array.prototype.findIndex
+Array.prototype.fill
+Array.prototype.keys
+Array.prototype.values
+Array.prototype.entries
+Array.prototype[Symbol.iterator]
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Number properties</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+Number.isFinite
+Number.isInteger
+Number.isSafeInteger
+Number.isNaN
+
+Number.EPSILON
+Number.MIN_SAFE_INTEGER
+Number.MAX_SAFE_INTEGER
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Math methods</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">Math.clz32
+Math.imul
+Math.sign
+Math.log10
+Math.log2
+//...等等等
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Subclassing</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+class C extends Array {}
+var c = new C();
+var len1 = c.length;
+c[2] = &#39;foo&#39;;
+var len2 = c.length;
+return len1 === 0 &amp;&amp; len2 === 3;
+
+// 2
+Array
+RegExp
+Function
+Promise
+Boolean
+Number
+String
+Map
+Set
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Misc</h2>
+
+</hgroup><article>
+
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>prototype of bound functions</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+function correctProtoBound(proto) {
+  var f = function(){};
+  if (Object.setPrototypeOf) {
+    Object.setPrototypeOf(f, proto);
+  }
+  else {
+    f.__proto__ = proto;
+  }
+  var boundF = Function.prototype.bind.call(f, null);
+  return Object.getPrototypeOf(boundF) === proto;
+}
+correctProtoBound(Function.prototype)
+  &amp;&amp; correctProtoBound({})
+  &amp;&amp; correctProtoBound(null);
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Object static methods accept primitives</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+Object.getPrototypeOf(&#39;a&#39;).constructor === String;
+
+// 2
+Object.getOwnPropertyDescriptor(&#39;a&#39;, &#39;foo&#39;) === undefined;
+
+// 3
+Object.seal(&#39;a&#39;) === &#39;a&#39;;
+Object.freeze(&#39;a&#39;) === &#39;a&#39;;
+Object.preventExtensions(&#39;a&#39;) === &#39;a&#39;;
+Object.isSealed(&#39;a&#39;) === true;
+Object.isFrozen(&#39;a&#39;) === true;
+Object.isExtensible(&#39;a&#39;) === false;
+
+
+// 4
+var s = Object.keys(&#39;a&#39;);
+s.length === 1 &amp;&amp; s[0] === &#39;0&#39;;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>own property order</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var obj = {
+  2:    true,
+  0:    true,
+  1:    true,
+  &#39; &#39;:  true,
+  9:    true,
+  D:    true,
+  B:    true,
+  &#39;-1&#39;: true,
+};
+obj.A = true;
+obj[3] = true;
+Object.defineProperty(obj, &#39;C&#39;, { value: true, enumerable: true });
+Object.defineProperty(obj, &#39;4&#39;, { value: true, enumerable: true });
+delete obj[2];
+obj[2] = true;
+
+var result = &#39;&#39;;
+for(var i in obj) {
+  result += i;
+}
+return result === &quot;012349 DB-1AC&quot;;
+
+Object.keys
+Object.getOwnPropertyNames
+Object.assign
+JSON.stringify
+JSON.parse
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>miscellaneous</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+do {} while (false) return true;
+
+// 2
+try {
+  eval(&#39;for (var i = 0 in {}) {}&#39;);
+}
+catch(e) {
+  return true;
+}
+
+// 3
+new RegExp(/./im, &quot;g&quot;).global === true;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2><strong>proto</strong> in object literals</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+{ __proto__ : [] } instanceof Array
+  &amp;&amp; !({ __proto__ : null } instanceof Object);
+
+// 2
+eval(&quot;({ __proto__ : [], __proto__: {} })&quot;); // ERROR
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Object.prototype.<strong>proto</strong></h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+var A = function(){};
+(new A()).__proto__ === A.prototype;
+
+// 2
+var o = {};
+o.__proto__ = Array.prototype;
+o instanceof Array;
+
+// 3
+Object.prototype.hasOwnProperty(&#39;__proto__&#39;); // true
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>ES7 前瞻</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+2 ** 3 === 8
+
+// 2
+Object.observe
+Array.prototype.includes
+
+// 4
+SIMD (Single Instruction, Multiple Data) 支持
+
+// 5
+typeof function f( a, b, ){} === &#39;function&#39;
+Math.min(1,2,3,) === 1
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>续 1</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+return (async function(){
+  return 42 + await Promise.resolve(42)
+})() instanceof Promise
+
+// 2
+(async () =&gt; 42 + await Promise.resolve(42))() instanceof Promise
+
+// 3
+class A {
+  @nonconf
+  get B() {}
+}
+function nonconf(target, name, descriptor) {
+  descriptor.configurable = false;
+  return descriptor;
+}
+Object.getOwnPropertyDescriptor(A.prototype, &quot;B&quot;).configurable === false;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>续 2</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+async function * nums() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+var result = &#39;&#39;;
+async function printData() {
+  for(var x on nums()) {
+    result += x;
+  }
+}
+result === &quot;123&quot;;
+
+// 2
+var {a, ...rest} = {a: 1, b: 2, c: 3};
+a === 1 &amp;&amp; rest.a === undefined &amp;&amp; rest.b === 2 &amp;&amp; rest.c === 3;
+
+// 3
+var spread = {b: 2, c: 3};
+var O = {a: 1, ...spread};
+O.a + O.b + O.c === 6;
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>续3</h2>
+
+</hgroup><article>
+
+<pre><code>// 1
+function foo() { this.garply += &quot;foo&quot;; return this; }
+var obj = { garply: &quot;bar&quot; };
+typeof obj::foo === &quot;function&quot; &amp;&amp; obj::foo().garply === &quot;barfoo&quot;;
+
+// 2
+var obj = { garply: &quot;bar&quot;, foo: function() { this.garply += &quot;foo&quot;; return this; } };
+typeof ::obj.foo === &quot;function&quot; &amp;&amp; ::obj.foo().garply === &quot;barfoo&quot;;
+
+// 3
+Object.getOwnPropertyDescriptors
+Map.prototype.toJSON
+Set.prototype.toJSON
+String.prototype.at
+String.prototype.lpad
+String.prototype.rpad
+Object.values
+Object.entries
+</code></pre>
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>续4</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">// 1 parallel JavaScript
+Array.prototype.mapPar
+Array.prototype.filterPar
+Array.fromPar
+// ..等等
+
+// 2
+[for (a of [1, 2, 3]) a * a] + &#39;&#39; === &#39;1,4,9&#39;
+
+// 3
+[for([a, b] of [[&#39;a&#39;, &#39;b&#39;]])a + b][0] === &#39;ab&#39;
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>All Done</h2>
+
+</hgroup><article>
+
+<p>Thanks</p>
+
+</article></section></slide>
+        <!--slide class="slide thank-you-slide segue nobackground">
+            <article class="flexbox vleft auto-fadein">
+                <h2>Q &amp; A</h2>
+                <h3>&lt;Thank You!&gt;</h3>
+            </article>
+        </slide-->
+        <slide class="slide logoslide dark nobackground">
+            <article class="flexbox vcenter">
+              <h2 style="color: white;">Powered By nodePPT v1.2.3</h2>
+            </article>
+          </slide>
+        <div class="slideTip" id="tip"></div>
+    </slides>
+</div>
+<canvas id="drawBoard" class="draw-board" width="900" height="700"></canvas>
+<div class="progress"><span id="progress"></span></div>
+<div id="_buttons">
+    <div class="_btn-box" id="_btn-box" style="display:none;">
+        <button class="fa fa-arrow-circle-left" id="_btn-prev"></button>
+        <button class="fa fa-arrow-circle-right" id="_btn-next"></button>
+        <button class="fa fa-paint-brush" id="_btn-brush"></button>
+        <button class="fa fa-compress" id="_btn-overview" data-toggle="fa fa-expand"></button>
+    </div>
+    <button class="fa fa-bars" id="_btn-bar"  data-toggle="fa fa-close"></button>
+</div>
+<script src="./js/mixjs/lib/mix.0.3.0.min.js"></script>
+<script>
+var base = location.protocol + '//' + location.host;
+
+var path = location.pathname.split('/').filter(function(v){
+    return !!v;
+});
+path.pop();
+path = path.join('/');
+MixJS.config({
+    baseURL: [ base, path, 'js'].join('/')+'/'
+});
+
+</script>
+<script src="./js/mixjs/lib/event/broadcast.js"></script>
+<script src="./js/nodeppt.js"></script>
+<script>
+Slide.init({
+    containerID: 'container',
+    drawBoardID: 'drawBoard',
+    slideClass: '.slide',
+    buildClass: '.build',
+    progressID: 'progress',
+    transition: 'move',
+    width: 1100,
+    dir: './',
+    
+    //打开下面的注释就开启postMessage方式
+    //访问网址127.0.0.1:8080/ppt/demo#client
+    control:{
+        type: 'postMessage',
+        args:{
+            isControl:  false
+        }
+    },
+    
+    tipID: 'tip'
+});
+MixJS.loadJS('/js/highlight/hljs-0.8.js',function(){
+    hljs.tabReplace = '  ';
+    hljs.initHighlightingOnLoad();
+});
+</script>
+<script src="./js/zoom.js"></script>
+<link rel="stylesheet" href="./css/theme.moon.css">
+<!--placeholder-->
+</body>
+</html>
